@@ -1,6 +1,8 @@
 # PyPad
 A Python Notepad.
 
+_100% Complete_
+
 ## Features
 
 - Save/Save As
