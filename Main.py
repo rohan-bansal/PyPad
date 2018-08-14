@@ -1,9 +1,11 @@
 import tkinter as tk
+from tkinter import *
 from tkinter import filedialog
+import os
 
-window = tk.Tk()
+window = tk.Tk(className="PyPadTextEditor")
 window.geometry("700x700")
-window.title("PyPad")
+window.title("PyPad - Untitled")
 
 class tools():
     def __init__(self):
@@ -18,12 +20,14 @@ class tools():
         else:
             t = editor.get("1.0", "end-1c")
             file_ = open(self.savelocation, "w+")
+            window.title("PyPad - " + os.path.basename(self.savelocation))
             file_.write(t)
             file_.close()
 
     def save_as(self):
         t = editor.get("1.0", "end-1c")
         self.savelocation = filedialog.asksaveasfilename()
+        window.title("PyPad - " + os.path.basename(self.savelocation))
         file_ = open(self.savelocation, "w+")
         file_.write(t)
         file_.close()
@@ -96,22 +100,39 @@ class tools():
             editor.tag_remove("style", "1.0", "end")
             editor.config(font = (self.font, self.fontsize))
 
+    def copy(self):
+        editor.event_generate("<<Copy>>")
+
+    def cut(self):
+        editor.event_generate("<<Cut>>")
+
+    def paste(self):
+        editor.event_generate("<<Paste>>")
+
 utils = tools()
 
+window.grid_rowconfigure(0,weight=1)
+window.grid_columnconfigure(0,weight=1)
+
 global editor
-editor = tk.Text(window, height = 700, width = 99)
-editor.grid()
+editor = tk.Text(window) #, height = 700, width = 99)
+editor.grid(sticky=N+E+S+W)
+
+scroller = tk.Scrollbar(editor)
+scroller.pack(side = RIGHT, fill = Y)
+scroller.config(command = editor.yview)
+editor.config(yscrollcommand = scroller.set)
 
 MenuBar = tk.Menu(window)
 FileMenu = tk.Menu(MenuBar, tearoff = 0)
 Style = tk.Menu(MenuBar, tearoff = 0)
+Tools = tk.Menu(MenuBar, tearoff = 0)
 Fontx = tk.Menu(MenuBar, tearoff = 0)
 FontType = tk.Menu(MenuBar, tearoff = 0)
 
 FileMenu.add_command(label = "Open", command = utils.open)
 FileMenu.add_command(label = "Save", command = utils.save)
 FileMenu.add_command(label = "Save As", command = utils.save_as)
-
 
 Fontx.add_command(label = "Helvetica", command = lambda: utils.change_fonts("Helvetica"))
 Fontx.add_command(label = "Comic Sans", command = lambda: utils.change_fonts("Comic Sans"))
@@ -130,8 +151,14 @@ Style.add_cascade(label = "Font", menu = Fontx)
 Style.add_cascade(label = "Font Options", menu = FontType)
 Style.add_command(label = "Font Size", command = utils.change_fontsize)
 
+Tools.add_command(label = "Cut (ctrl+x)", command = utils.cut)
+Tools.add_command(label = "Copy (ctrl+c)", command = utils.copy)
+Tools.add_command(label = "Paste (ctrl+v)", command = utils.paste)
+
+
 MenuBar.add_cascade(label="File", menu = FileMenu)
 MenuBar.add_cascade(label="Styling", menu = Style)
+MenuBar.add_cascade(label = "Tools", menu = Tools)
 
 window.config(menu = MenuBar)
 
