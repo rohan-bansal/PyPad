@@ -42,7 +42,10 @@ class tools():
 
     def save_as(self):
         t = editor.get("1.0", "end-1c")
-        self.savelocation = filedialog.asksaveasfilename()
+        try:
+            self.savelocation = filedialog.asksaveasfilename()
+        except:
+            return
         window.title("PyPad - " + os.path.basename(self.savelocation))
         file_ = open(self.savelocation, "w+")
         file_.write(t)
@@ -126,6 +129,13 @@ class tools():
     def paste(self):
         editor.event_generate("<<Paste>>")
 
+    def on_closing(self):
+        if messagebox.askyesno('Save', 'Save file first?') == True: 
+            self.save()
+        else:
+            sys.exit()   
+
+
 utils = tools()
 
 window.grid_rowconfigure(0,weight=1)
@@ -177,5 +187,6 @@ MenuBar.add_cascade(label="Styling", menu = Style)
 MenuBar.add_cascade(label = "Tools", menu = Tools)
 
 window.config(menu = MenuBar)
+window.protocol("WM_DELETE_WINDOW", utils.on_closing)
 
 window.mainloop()
